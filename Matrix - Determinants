@@ -1,0 +1,267 @@
+import java.util.Scanner;
+public class AliLabAct03 {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\n ─────────────── ∘°❉°∘ ───────────────");
+
+        boolean validInput = false;
+        int rows = 0;
+        int columns = 0;
+
+        System.out.println();
+        while (!validInput) {
+            System.out.println("\n      Matrix dimensions (n by n):");
+            System.out.print("      Number of Rows: ");
+            try {
+                rows = Integer.parseInt(scanner.nextLine());
+                if (rows > 10) {
+                    throw new NumberFormatException();
+                }
+                System.out.print("      Number of Columns: ");
+                columns = Integer.parseInt(scanner.nextLine());
+                if (columns != rows || rows > 5 || columns > 5 || rows < 1 || columns < 1) {
+                    throw new NumberFormatException();
+                }
+                validInput = true;
+            } catch (NumberFormatException e) {
+                System.out.print("      Invalid input. Please enter valid integers: ");
+            }
+        }
+
+        int[][] matrix = new int[rows][columns]; // increment for constant
+        int[][] originalMatrix = new int[rows][columns]; // storing original matrix
+
+        System.out.println("\n      Enter the elements of the matrix:");
+        for (int i = 0; i < rows; i++) {
+            System.out.println("\n      Elements in equation " + (i + 1) + ":");
+            for (int j = 0; j < columns; j++) {
+                try {
+                    System.out.print("      Element " + (i + 1) + (j + 1) + ": ");
+                    matrix[i][j] = Integer.parseInt(scanner.nextLine());
+                    originalMatrix[i][j] = matrix[i][j];
+                } catch (NumberFormatException e) {
+                    System.out.println("      Invalid input. Please enter a valid integer.");
+                    j--; // Re-prompt for the same element
+                }
+            }
+        }
+
+        boolean continueOperations = true;
+        while (continueOperations) {
+            validInput = false;
+            System.out.println();
+            System.out.println("    ────────────── ⋆⋅☆⋅⋆ ─────────────");
+            System.out.println("         Choose option to display:");
+            System.out.println("           (1) Initialized Matrix");
+            System.out.println("           (2) Display Determinant");
+            System.out.println("           (3) Input new set of data");
+            System.out.println("           (4) Exit the program");
+           
+            System.out.println("    ────────────── ⋆⋅☆⋅⋆ ─────────────");
+
+            System.out.print("         Enter Input: ");
+            int option = 0;
+
+            while (!validInput) {
+                try {
+                    option = Integer.parseInt(scanner.nextLine());
+                    if (option >= 1 && option <= 4) {
+                        validInput = true;
+                    } else {
+                        System.out.println("      Invalid choice. Enter a number between 1 and 4.");
+                        System.out.print("      Enter Input: ");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("      Invalid choice. Enter a number between 1 and 4.");
+                    System.out.print("      Enter Input: ");
+                }
+            }
+
+            switch (option) {
+                case 1:
+                    System.out.println("\n         Initialized Matrix: ");
+                    printMatrix(matrix);
+                    break;
+                case 2:
+                    System.out.println("\n      Determinant of the Matrix: ");
+                    computeDeterminantWithProcess(matrix);
+                    break;
+                case 3:
+                    main(args);
+                    break;
+                case 4:
+                    System.out.println("\n ─────────────── °∘❉∘° ───────────────");
+                    System.exit(0);
+                    break;
+            }
+        }
+
+        scanner.close();
+    }
+
+    // Method to print a matrix
+    public static void printMatrix(int[][] matrix) { //print the given matrix
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            System.out.println(" Matrix is empty.");
+            return;
+        }
+
+        for (int[] row : matrix) { //print each element of the matrix
+            System.out.print("            | ");
+            for (int element : row) {
+                System.out.print(" " + element + " ");
+            }
+            System.out.println("|");
+        }
+    }
+
+
+    public static void computeDeterminantWithProcess(int[][] matrix) {
+        Scanner scanner = new Scanner(System.in);
+        int n = matrix.length;
+   
+        if (n == 1) {
+             int determinant = computeDeterminant1x1(matrix);
+             System.out.println("      Determinant: " + determinant);
+           
+        } else if (n == 2) {
+            int determinant = computeDeterminant2x2(matrix);
+            System.out.println("      Determinant: " + determinant);
+           
+        } else if (n == 3) {
+            // Display row indices
+            System.out.println("\n      Row indices:");
+            for (int i = 0; i < n; i++) {
+                System.out.println("      " + (i + 1) + ". Row " + (i + 1));
+            }
+   
+            // Prompt for row index for cofactor expansion
+            System.out.print("\n      Select the row to expand: ");
+            int row = scanner.nextInt() - 1; // Adjust for zero-based indexing
+   
+            // Compute determinant using the selected row
+            int determinant = computeDeterminant3x3(matrix, row);
+            System.out.println("      Determinant: " + determinant);
+       
+        } else if (n == 4) {
+            // Display row indices
+            System.out.println("      Row indices:");
+            for (int i = 0; i < n; i++) {
+                System.out.println("      " + (i + 1) + ". Row " + (i + 1));
+            }
+            // Prompt for row index for cofactor expansion
+            System.out.print("      Select the row to expand: ");
+            int row = scanner.nextInt() - 1; // Adjust for zero-based indexing
+            while (row < 0 || row >= n) {
+                System.out.println("      Invalid row index. Please select a row between 1 and " + n);
+                System.out.print("      Select the row to expand: ");
+                row = scanner.nextInt() - 1;
+            }
+            int determinant = computeDeterminant4x4(matrix);
+            System.out.println("      Determinant: " + determinant);
+        } else {
+            System.out.println("      Matrix size not supported. Please enter a 3x3 or 4x4 matrix.");
+        }
+    }
+
+    public static int[][] getMinor(int[][] matrix, int rowToRemove, int colToRemove) {
+        int n = matrix.length;
+        int[][] minorMatrix = new int[n - 1][n - 1];
+        int minorRow = 0;
+        for (int i = 0; i < n; i++) {
+            if (i == rowToRemove) {
+                continue;
+            }
+            int minorCol = 0;
+            for (int j = 0; j < n; j++) {
+                if (j == colToRemove) {
+                    continue;
+                }
+                minorMatrix[minorRow][minorCol] = matrix[i][j];
+                minorCol++;
+            }
+            minorRow++;
+        }
+        return minorMatrix;
+    }
+
+    public static int computeDeterminant3x3(int[][] matrix, int row) {
+        StringBuilder determinantExpression = new StringBuilder("      det(A) = ");
+        int determinant = 0;
+       
+        for (int j = 0; j < matrix.length; j++) {
+            int cofactor = (int) Math.pow(-1, row + j) * matrix[row][j];
+            int[][] subMatrix = getSubMatrix(matrix, row, j);
+            int subDeterminant = computeDeterminant2x2(subMatrix); // Calculate determinant of a 2x2 submatrix
+           
+            // Append the current term to the expression
+     
+            determinantExpression.append("      (")
+                    .append(cofactor >= 0 ? " " : "")  // Add space for positive cofactors
+                    .append(cofactor)
+                    .append(") ")
+                    .append("(-1)^(").append(row + 1).append("+").append(j + 1).append(") ")  // Adjust exponent for (-1) based on the row and column indices
+                    .append(" ")
+                    .append(subDeterminant >= 0 ? (subDeterminant > 0 ? "+" : "") : "(")  // Add "+" for positive subdeterminants and "(" for negative ones
+                    .append(subDeterminant)
+                    .append(subDeterminant >= 0 ? "" : ")")  // Add ")" for negative subdeterminants
+                    .append(j == matrix.length - 1 ? "" : " +\n");
+
+            // Display operation details
+            System.out.println("\n      Step " + (j + 1) + ":");
+            System.out.println("        Cofactor: " + cofactor);
+            System.out.println("        Submatrix:");
+            printMatrix(subMatrix);
+            System.out.println("        Submatrix determinant: " + subDeterminant);
+           
+            // Add the current term to the determinant
+            determinant += cofactor * subDeterminant;
+        }
+       
+        // Display the determinant expression
+        System.out.println("\n" + determinantExpression.toString());
+       
+        return determinant;
+    }
+
+    public static int computeDeterminant4x4(int[][] matrix) {
+        int determinant = 0;
+        for (int j = 0; j < matrix.length; j++) {
+            int cofactor = (int) Math.pow(-1, j) * matrix[0][j];
+            int[][] subMatrix = getMinor(matrix, 0, j);
+            int subDeterminant = computeDeterminant3x3(subMatrix, 0);
+            determinant += cofactor * subDeterminant;
+        }
+        return determinant;
+    }
+
+    public static int[][] getSubMatrix(int[][] matrix, int rowToRemove, int colToRemove) {
+        int n = matrix.length;
+        int[][] subMatrix = new int[n - 1][n - 1];
+        int subRow = 0;
+        for (int i = 0; i < n; i++) {
+            if (i == rowToRemove) {
+                continue;
+            }
+            int subCol = 0;
+            for (int j = 0; j < n; j++) {
+                if (j == colToRemove) {
+                    continue;
+                }
+                subMatrix[subRow][subCol] = matrix[i][j];
+                subCol++;
+            }
+            subRow++;
+        }
+        return subMatrix;
+    }
+
+    public static int computeDeterminant2x2(int[][] matrix) {
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    }
+    public static int computeDeterminant1x1(int[][] matrix) {
+        // For a 1x1 matrix, the determinant is the single element of the matrix
+        return matrix[0][0];
+    }
+}
