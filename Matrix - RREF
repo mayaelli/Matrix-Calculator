@@ -1,0 +1,572 @@
+import java.util.Scanner;
+import java.text.DecimalFormat; 
+import java.util.InputMismatchException;
+
+public class FINAL {
+    private static boolean isRREFTransformed = false;
+    public static void main(String[] args) {
+                Scanner scanner = new Scanner(System.in);
+                boolean exit = false;
+                System.out.println();
+                System.out.println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                
+                int choice = 0;
+                boolean validChoice = false;
+                isRREFTransformed = false;
+            
+                int rows = 0;
+                int columns = 0;
+                boolean validInput = false;
+
+                while (!validInput) {
+                    System.out.println("\n      Matrix dimensions (n by n):");
+                    System.out.print("      Number of Equations: ");
+                    try {
+                        rows = Integer.parseInt(scanner.nextLine());
+                        if (rows > 10) {
+                            throw new NumberFormatException();
+                        }
+                        System.out.print("      Number of Unknowns: ");
+                        columns = Integer.parseInt(scanner.nextLine());
+                        if (columns != rows || rows > 10 || columns > 10 || rows < 1 || columns < 1) {
+                            throw new NumberFormatException();
+                        }
+                        validInput = true;
+                    } catch (NumberFormatException e) {
+                        System.out.print("      Invalid input. Please enter valid integers: ");
+                    }
+                }
+
+                double[][] matrix = new double[rows][columns+1]; // increment for constant 
+                double[][] originalMatrix = new double[rows][columns+1]; // storing original matrix
+
+                System.out.println("\n      Enter the elements of the matrix:");
+                for (int i = 0; i < rows; i++) {
+                    System.out.println("\n      Elements in equation " + (i + 1) + ":");     
+                    for (int j = 0; j < columns; j++) {
+                        try {
+                            System.out.print("      Element " + (i + 1) + (j + 1) + ": ");
+                            matrix[i][j] = Double.parseDouble(scanner.nextLine());
+                            originalMatrix[i][j] = matrix[i][j];
+                        } catch (NumberFormatException e) {
+                            System.out.println("      Invalid input. Please enter a valid integer.");
+                            j--; // Re-prompt for the same element
+                        }
+                    }
+                    try {
+                        System.out.print("      Constant element of row " + (i + 1) + ": ");
+                        matrix[i][columns] = Double.parseDouble(scanner.nextLine());
+                        originalMatrix[i][columns] = matrix[i][columns];
+                        System.out.println();
+                    } catch (NumberFormatException e) {
+                        System.out.println("      Invalid input. Please enter a valid integer.");
+                        i--; // Re-prompt for the same row
+                    }
+                }
+
+                // Display Entered Matrix in Normal Format
+                System.out.println("\n      Entered Matrix:");
+                printMatrix(originalMatrix);
+                
+                // extract the solution from the RREF matrix
+                double[] solution = new double[columns];
+                for (int i = 0; i < rows; i++) {
+                    solution[i] = matrix[i][columns];
+                    
+                }
+                
+                System.out.println();
+                boolean continueOperations = true;
+                while (continueOperations) {
+    
+                    validInput = false;
+                    
+                    System.out.println("\n      Choose option to display:");
+                    System.out.println("      (1) Entered Matrix");
+                    System.out.println("      (2) Linear System");
+                    System.out.println("      (3) System Matrix");
+                    System.out.println("      (4) Augmented Matrix");
+                    System.out.println("      (5) Reduced Row Echelon Form (RREF)");
+                    System.out.println("      (6) Value of Variables");
+                    System.out.println("      (7) Verify");
+                    System.out.println("      (8) Input new set of data");
+                    System.out.println("      (9) Exit the program");
+                    System.out.print("      Enter Input: ");
+                    int option = 0;
+                    
+                    while (!validInput) {
+                        try {
+                            option = Integer.parseInt(scanner.nextLine());
+                            if (option >= 1 && option <= 9) {
+                                validInput = true;
+                            } else {
+                                System.out.println("      Invalid choice. Enter a number between 1 and 8.");
+                                System.out.print("      Enter Input:");
+                            }
+                        } catch (NumberFormatException e){
+                            System.out.println("      Invalid choice. Enter a number between 1 and 8.");
+                            System.out.print("      Enter Input:");
+                        }
+                    }
+                
+                    switch (option) {
+                        case 1:
+                            System.out.println("\n      Entered Matrix:");
+                            printMatrix(originalMatrix);
+                            break;
+                        case 2:
+                            System.out.println("\n      Linear System:");
+                            printLinearSystem(originalMatrix, columns);
+                            break;
+                        case 3:
+                            System.out.println("\n      System Matrix:");
+                            printSystemMatrix(originalMatrix, columns);
+                            break;
+                        case 4:
+                            System.out.println("\n      Augmented Matrix:");
+                            printAugmentedMatrix(originalMatrix, columns);
+                            break;
+                        case 5:
+                            // Intermediate Matrix
+                            System.out.println("\n      Intermediate Matrix:");
+                            transformToRREF(matrix);
+                            
+                            // Display Reduced Row Echelon Form (RREF)
+                            System.out.println("\n      Reduced Row Echelon Form (RREF):");
+                            printMatrix(matrix);
+                            break;
+                        case 6:
+                            if(!isRREFTransformed) {
+                                System.out.println();
+                                System.out.println("     You haven't transformed your matrix to RREF yet.");
+                                System.out.println("     Select option 5 to perform RREF transformation first.");
+                                break;
+                            }
+                            System.out.println("\n      Value of Variables of RREF:");
+                            double[] subval= new double [rows];
+                            int chosenEquation = -1;
+                            subvar(matrix, subval);
+                            break;
+                        case 7:  
+                            if (!isRREFTransformed) {
+                                System.out.println();
+                                System.out.println("     You haven't transformed your matrix to RREF yet.");
+                                System.out.println("     Select option 5 to perform RREF transformation first.");
+                                break;
+                            }
+                            char verifyAgain = 'Y'; // Initialize to 'Y' to enter the loop initially
+                            subval = new double [rows];
+                            chosenEquation = -1;
+                            System.out.println();
+                            System.out.println("      Variable Value:");
+                            subvar(matrix, subval);
+                            while (verifyAgain == 'Y' || verifyAgain == 'y') {
+                                displayLinearEquations(originalMatrix, rows, columns, matrix); // Display the original matrix
+                            
+                                try {
+                                    System.out.print("      Choose between (1-" + rows + "):  ");
+                                    chosenEquation = scanner.nextInt();
+                            
+                                    if (chosenEquation < 1 || chosenEquation > rows) {
+                                        throw new InputMismatchException(); // Throw an exception if the input is out of range
+                                    }
+                                } catch (InputMismatchException e) {
+                                    System.out.print("      Invalid input. Please enter a number between 1 and " + rows + ".");
+                                    //scanner.next(); // Clear the invalid input
+                                    continue; // Restart the loop
+                                }
+                            
+                                // Process of Verification
+                                equationverif(originalMatrix, chosenEquation, subval);
+                            
+                                // Prompt for verification again
+                                System.out.println("\n      Do you want to verify again? (Y/N)");
+                                System.out.print("      Enter your input: ");
+                                scanner.nextLine(); // Consume newline character left by nextInt
+                            
+                                try {
+                                    verifyAgain = Character.toUpperCase(scanner.nextLine().charAt(0)); // Convert input to uppercase
+                            
+                                    // Validate user input
+                                    while (verifyAgain != 'Y' && verifyAgain != 'N') {
+                                        System.out.println("      Invalid input. Please enter Y or N.");
+                                        System.out.print("      Enter your input: ");
+                                        verifyAgain = Character.toUpperCase(scanner.nextLine().charAt(0)); // Convert input to uppercase
+                                    }
+                            
+                                    // If 'N' is chosen, halt the verification process
+                                    if (verifyAgain == 'N') {
+                                        System.out.println("      Verification stopped.");
+                                        break; // Break the loop if unsuccessful
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println("      Error: Invalid input. Please enter Y or N.");
+                                }
+                            }
+
+                            break;
+                        case 8:
+                            main(args);
+                            break;
+                        case 9:
+                            System.out.println("      Hope you had a good one. Bye. \n");
+                            System.out.println("::::::::::::::::::::::::::::::::::::::::::::::;:::::::::::::");
+
+                            System.exit(0);
+                        
+                    }
+                }
+                scanner.close();
+    }
+        
+    public static void printLinearSystem(double[][] matrix, int columns){
+                for (int i = 0; i < matrix.length; i++) {
+                    System.out.print("         Equation " + (i + 1) + ": ");
+                    boolean hasNonZeroCoefficients = false;
+                    boolean isFirstVariable = true;
+                    for (int j = 0; j < columns; j++) {
+                        if (matrix[i][j] != 0) {
+                            if (!isFirstVariable) {
+                                if (matrix[i][j] == 1) {
+                                    System.out.print("+ ");
+                                } else if (matrix[i][j] == -1) {
+                                    System.out.print("- ");
+                                } else {
+                                    System.out.print((matrix[i][j] > 0 ? "+ " : "- "));
+                                }
+                            } else {
+                                isFirstVariable = false;
+                            }
+                            double coefficient = matrix[i][j];
+                            if (Math.abs(coefficient - (int) coefficient) < 0.0001) {
+                                System.out.print((int) Math.abs(coefficient));
+                            } else {
+                                System.out.printf("%.1f", Math.abs(coefficient));
+                            }
+                            System.out.print((char) ('q' + j) + " ");
+                            hasNonZeroCoefficients = true;
+                        }
+                    }
+                    if (!hasNonZeroCoefficients) {
+                        System.out.print("0");
+                    }
+                    double constant = matrix[i][columns];
+                    if (Math.abs(constant - (int) constant) < 0.0001) {
+                        System.out.println("= " + (int) constant);
+                    } else {
+                        System.out.printf("= %.1f%n", constant);
+                    }
+                }
+    }
+    
+    public static void printSystemMatrix(double[][] matrix, int columns) {
+                for (int i = 0; i < matrix.length; i++) {
+                    System.out.print("         | ");
+                    for (int j = 0; j < columns; j++) {
+                        double value = matrix[i][j];
+                        if (Math.abs(value - (int) value) < 0.0001) {
+                            System.out.printf("%.0f ", value); // Display whole number alone if no decimal
+                        } else {
+                            System.out.printf("%.1f ", value); // Display with one decimal place
+                        }
+                    }
+                    System.out.print("| |" + (char) ('q' + i) + "| = | ");
+                    double constant = matrix[i][columns];
+                    if (Math.abs(constant - (int) constant) < 0.0001) {
+                        System.out.printf("%.0f |%n", constant); // Display whole number alone if no decimal
+                    } else {
+                        System.out.printf("%.1f |%n", constant); // Display with one decimal place
+                    }
+                }
+    }
+     // Display the matrix in augmented form
+    public static void printAugmentedMatrix(double[][] matrix, int columns) {
+                for (int i = 0; i < matrix.length; i++) {
+                    System.out.print("         | ");
+                    for (int j = 0; j < columns; j++) {
+                        double value = matrix[i][j];
+                        if (Math.abs(value - (int) value) < 0.0001) {
+                            System.out.printf("%.0f ", value); // Display whole number alone if no decimal
+                        } else {
+                            System.out.printf("%.1f ", value); // Display with one decimal place
+                        }
+                    }
+                    double constant = matrix[i][columns];
+                    if (Math.abs(constant - (int) constant) < 0.0001) {
+                        System.out.printf("⋮ %.0f |%n", constant); // Display whole number alone if no decimal for the constant term
+                    } else {
+                        System.out.printf("⋮ %.1f |%n", constant); // Display with one decimal place for the constant term
+                    }
+                }
+    }
+     // Transform the matrix to its Reduced Row Echelon Form (RREF) using Gaussian elimination.
+    public static void transformToRREF(double[][] matrix) {
+        int rows = matrix.length;
+        int columns = matrix[0].length;
+        int lead = 0;
+        
+        // Initial display of the matrix
+        System.out.println("\n      Initial matrix:");
+        printMatrix(matrix);
+        for (int r = 0; r < rows; r++) {
+            if (columns <= lead) {
+                break;  // Exit the loop if the number of columns is less than or equal to the lead
+            }
+
+            // Find the first non-zero entry in the current column at or below the current row
+            int i = r;
+            while (i < rows && matrix[i][lead] == 0) {
+                i++;
+            }
+
+            // If no non-zero entry is found, increment the lead and continue to the next iteration
+            if (i == rows) {
+                lead++;
+                continue;
+            }
+
+            // Swap the current row with the row containing the non-zero entry
+            if (i != r) {
+                swapRows(matrix, r, i);
+                System.out.println("\n      Swapped Row " + (r + 1) + " with Row " + (i + 1) + ":");
+                printMatrix(matrix);
+            }
+
+            // Scale the current row to make the leading entry 1 if it is not already 1
+            double val = matrix[r][lead];
+            if (val != 1) {
+                scaleRow(matrix, r, val);
+                System.out.println("\n      Scaled Row " + (r + 1) + " to make leading entry 1:");
+                printMatrix(matrix);
+            }
+
+            // Perform row operations to make all other entries in the current column zero
+            for (i = 0; i < rows; i++) {
+                if (i != r) {
+                    double scaleFactor = matrix[i][lead];
+                    rowOperation(matrix, i, r, scaleFactor);
+                }
+            }
+
+            // Output the intermediate matrix after each step
+            System.out.println("\n      Intermediate matrix after step " + (r + 1) + ":");
+            printMatrix(matrix);
+
+            lead++;
+            
+            isRREFTransformed = true;
+        }
+    }
+
+    private static void scaleRow(double[][] matrix, int row, double scaleFactor) {
+        double columns = matrix[0].length;
+        for (int j = 0; j < columns; j++) {
+            matrix[row][j] /= scaleFactor;
+        }
+    }
+    private static void rowOperation(double[][] matrix, int row, int referenceRow, double scaleFactor) {
+        int columns = matrix[0].length;
+        for (int j = 0; j < columns; j++) {
+            matrix[row][j] -= scaleFactor * matrix[referenceRow][j];
+        }
+    }
+    private static void swapRows(double[][] matrix, int row1, int row2) {
+        double[] temp = matrix[row1];
+        matrix[row1] = matrix[row2];
+        matrix[row2] = temp;
+    }
+    
+    // Print the Matrix in its modified / original form
+    public static void printMatrix(double[][] matrix) {
+        int rows = matrix.length;
+        int columns = matrix[0].length - 1;
+    
+        // Find the maximum number of digits in each column
+        int[] maxDigits = new int[columns];
+        DecimalFormat df = new DecimalFormat("#.##");
+        for (int j = 0; j < columns; j++) {
+            int max = Integer.MIN_VALUE;
+            for (int i = 0; i < rows; i++) {
+                String formatted = df.format(matrix[i][j]);
+                int digits = formatted.indexOf('.') == -1 ? formatted.length() : formatted.length() - 1; // Count digits without decimal point
+                if (digits > max) {
+                    max = digits;
+                }
+            }
+            maxDigits[j] = max;
+        }
+    
+        // Print the matrix with aligned columns
+        for (int i = 0; i < rows; i++) {
+            System.out.print("         |");
+            for (int j = 0; j < columns; j++) {
+                double val = matrix[i][j];
+                String formatted = df.format(val);
+                if (Math.abs(val) < 1e-10) {
+                    val = 0.0;
+                }
+                if (val % 1 == 0) {
+                    System.out.printf("%" + (maxDigits[j] + 1) + ".0f ", val); // Display integer part only
+                } else {
+                    System.out.printf("%" + (maxDigits[j] + 1) + ".1f ", val); // Display with one decimal place
+                }
+            }
+            double val = matrix[i][columns];
+            String formatted = df.format(val);
+            if (Math.abs(val) < 1e-10) {
+                val = 0.0;
+            }
+            if (val % 1 == 0) {
+                System.out.printf("%" + (maxDigits[columns - 1]) + ".0f", val); // Display integer part only
+            } else {
+                System.out.printf("%" + (maxDigits[columns - 1]) + ".1f", val); // Display with one decimal place
+            }
+            System.out.println(" |");
+        }
+    }
+    // Displaying the obtained variable
+    public static void subvar(double[][] matrix, double[] subval){
+        DecimalFormat df = new DecimalFormat("#.##"); 
+        int rows = matrix.length;
+        int columns = matrix[0].length - 1;
+        
+        for (int i = 0; i < rows; i++) {
+            double constant = matrix[i][columns];
+            double subvalue;
+            
+            if (constant == 0) {
+                subvalue = 0;
+            } else if (constant == (int) constant){
+                subvalue = (int) constant;
+            } else {
+                subvalue = Double.parseDouble (df.format(constant));
+            }
+            
+            subval[i] = subvalue;
+            
+            StringBuilder equation = new StringBuilder();
+            equation.append("          " + (char) ('q' + i)).append(" = ");
+            equation.append(subvalue % 1 == 0 ? String.valueOf((int) subvalue) : df.format(subvalue));
+            System.out.println(equation.toString());
+            isRREFTransformed = true;
+        }
+    }
+     // Function for verification
+    public static void equationverif(double[][] matrix, int equationIndex, double[] subval) {
+        DecimalFormat df = new DecimalFormat("#.##"); // Format to two decimal places
+        int columns = matrix[0].length;
+        if (equationIndex < 1 || equationIndex > matrix.length) {
+            System.out.println("      Invalid Input. Please try again.");
+            return;
+        }
+        // Display the selected equation
+        System.out.print("\n      Equation " + equationIndex + ": ");
+        for (int j = 0; j < columns - 1; j++) {
+            double coefficient = matrix[equationIndex - 1][j]; // Adjust index to start from 0
+            if (coefficient != 0) {
+                if (coefficient == 1) {
+                    System.out.print((char) ('q' + j));
+                } else if (coefficient == -1) {
+                    System.out.print("-" + (char) ('q' + j));
+                } else {
+                    System.out.print(df.format(coefficient) + (char) ('q' + j));
+                }
+                if (j < columns - 2) {
+                    System.out.print(" + ");
+                }
+            }
+        }
+        double constant = matrix[equationIndex - 1][columns - 1];
+        System.out.println(" = " + df.format(constant));
+        // Solve the equation and verify
+        double sum = 0;
+        for (int j = 0; j < columns - 1; j++) {
+            sum += matrix[equationIndex - 1][j] * subval[j];
+        }
+        // Displaying the substitution process
+        StringBuilder substitutionProcess = new StringBuilder();
+        System.out.print("      Verify: ");
+        for (int j = 0; j < columns - 1; j++) {
+            double coefficient = matrix[equationIndex - 1][j]; // Adjust index to start from 0
+            
+            if (coefficient != 0) {
+                if (j > 0) {
+                    substitutionProcess.append(" + ");
+                }
+                double substitutedValue = subval[j];
+                substitutionProcess.append(df.format(coefficient));
+                if (substitutedValue >= 0) {
+                    substitutionProcess.append("(").append(df.format(substitutedValue)).append(")");
+                } else {
+                    substitutionProcess.append("(").append(df.format(substitutedValue)).append(")");
+                }
+            }
+        }
+        substitutionProcess.append(" = ").append(df.format(constant));
+        System.out.println(substitutionProcess.toString());
+        
+        // Displaying the computed process of substitution
+        StringBuilder newSubstitutionProcess = new StringBuilder();
+        System.out.print("      Verify: ");
+        for (int k = 0; k < columns - 1; k++) {
+            double newCoefficient = matrix[equationIndex - 1][k]; // Adjust index to start from 0
+            if (newCoefficient != 0) {
+                if (newSubstitutionProcess.length() > 0) {
+                    newSubstitutionProcess.append(" + ");
+                }
+                double newSubstitutedValue = subval[k];
+                newSubstitutionProcess.append(df.format(newCoefficient * newSubstitutedValue));
+            }
+        }
+        newSubstitutionProcess.append(" = ").append(df.format(constant));
+        System.out.println(newSubstitutionProcess.toString());
+       
+        // Solve the equation and verify
+        System.out.print("      Verify: ");
+        double sum1 = 0;
+        for (int j = 0; j < columns - 1; j++) {
+            sum1 += matrix[equationIndex - 1][j] * subval[j];
+        }
+       
+        double roundedSum1 = Math.round(sum1);
+        System.out.print(df.format(roundedSum1) + " = " + df.format(constant));
+        if (df.format(roundedSum1).equals(df.format(constant))) {
+            System.out.println("\n      Equation verified");
+        } else {
+            System.out.println("\n      Equation not verified");
+        }
+    }
+    // Print the Linear equation
+    public static void displayLinearEquations(double[][] matrix, int rows, int columns, double[][] matrix1) {
+        System.out.println("\n      Which equation would you like to verify?");
+        for (int i = 0; i < rows; i++) {
+            StringBuilder equation = new StringBuilder();
+            boolean isFirst = true;
+            System.out.print("         Equation " + (i + 1) + ": ");
+            for (int j = 0; j < columns; j++) {
+                double coefficient = matrix[i][j];
+                if (coefficient != 0) {
+                    if (!isFirst && coefficient > 0) {
+                        equation.append("+ ");
+                    }
+                    
+                    if (coefficient == 1) {
+                        equation.append("");
+                    } else if (coefficient == -1) {
+                        equation.append("- ");
+                    } else {
+                        if (coefficient == (int) coefficient) {
+                            equation.append((int) coefficient);
+                        } else {
+                            equation.append(coefficient);
+                        }
+                    }
+                    equation.append((char) ('q' + i)).append(" ");
+                    isFirst = false;
+                }
+            }
+            equation.append("= ").append((int) matrix[i][columns - 1]);
+            System.out.println(equation.toString());
+        }
+    }  
+}
