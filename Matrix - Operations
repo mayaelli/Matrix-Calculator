@@ -1,0 +1,736 @@
+import java.util.*;
+public class Ali_MatrixOperations {
+    private static Scanner scan = new Scanner (System.in);
+
+    public static void main(String[] args) {
+        boolean exitProgram = false;
+        System.out.println("\n Greetings! Welcome to the Matrix Operations program!");
+        while (!exitProgram) {
+            System.out.println(" Do you wish to proceed?");
+            System.out.println("  (1) Yes");
+            System.out.println("  (2) No (Exit)");
+            System.out.print(" Enter your choice: ");
+            int proceed = 0;
+            boolean validInput = false;
+           
+            // Loop until valid input is obtained from the user
+            while (!validInput) {
+                try {
+                    proceed = Integer.parseInt(scan.nextLine());
+                    if (proceed == 1 || proceed == 2) {
+                        validInput = true;
+                    } else {
+                        System.out.print(" Invalid input. Please enter 1 or 2. \n Enter your choice: ");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.print(" Invalid input. Please enter a number. \n Enter your choice: ");
+                }
+            }
+
+            if (proceed == 1) {
+                operateMatrices();
+            } else if (proceed == 2) {
+                System.out.println("\n Thank you. Goodbye!");
+                exitProgram = true;
+            } else {
+                System.out.println( "Invalid input. Exiting..." );
+                System.exit(1);
+            }
+        }
+        scan.close();
+    }
+    // Function to handle matrix operations
+    public static void operateMatrices() {
+        System.out.println("\n Please note not to exceed 5 matrices.");
+        System.out.print(" Enter the number of matrices: ");
+        int matricesNum = 0;
+        boolean validInput = false;
+        boolean exitProgram = false;
+        // Loop until valid input is obtained from the user
+        while (!validInput) {
+            try {
+                matricesNum = Integer.parseInt(scan.nextLine());
+                if (matricesNum >= 1 && matricesNum <= 5) {
+                    validInput = true;
+                } else {
+                    System.out.println(" Invalid input. Please enter a number between 1 and 5.");
+                    System.out.print(" Enter the number of matrices: ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(" Invalid input. Please enter a number.");
+                System.out.print(" Enter the number of matrices: ");
+            }
+        }
+
+        int[][][] matrices = new int[matricesNum][][];
+        // Loop to create matrices based on user input
+        for (int m = 0; m < matricesNum; m++) {
+            System.out.println("\n Matrix number " + (m + 1));
+            matrices[m] = createMatrix();
+            System.out.println(" Matrix " + (m + 1) + ":");
+            printMatrix(matrices[m]);
+        }    
+
+        boolean continueOperations = true;
+        while (continueOperations) {
+            // Prompting the user for the desired operation
+            System.out.println("\n Operations to Perform:");
+            System.out.println("  (1) Addition Matrix");
+            System.out.println("  (2) Basic Multiplication Matrix");
+            System.out.println("  (3) Multiply Matrix by Constant");
+            System.out.println("  (4) Diagonalize Matrix");
+            System.out.println("  (5) Close Program");
+            System.out.print("  Enter Input: ");
+            int choice = 0;
+            validInput = false;
+            // Loop until valid input is obtained from the user
+            while (!validInput) {
+                try {
+                    choice = Integer.parseInt(scan.nextLine());
+                    if (choice >= 1 && choice <= 5) {
+                        validInput = true;
+                    } else {
+                        System.out.println("  Invalid choice. Please enter a number between 1 and 5.");
+                        System.out.print("  Enter Input: ");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("  Invalid input. Please enter a number between 1 and 5.");
+                    System.out.print("  Enter Input: ");
+                }
+            }
+            System.out.println();
+            // Perform the selected operation
+            switch (choice) {
+                case 1:
+                    addMatrices(matrices);
+                    continueOperations = continueOrExit();
+                    break;
+                case 2:
+                    multiplyMatrices(matrices);
+                    continueOperations = continueOrExit();
+                    break;
+                case 3:
+                    multiplyMatricesByConstant(matrices, scan);
+                    continueOperations = continueOrExit();
+                    break;
+                case 4:
+                    diagonalizeMatrix(matrices, scan);
+                    continueOperations = continueOrExit();
+                    break;
+                case 5:
+                    System.out.println(" Thank you. Goodbye!");
+                    System.exit(0);
+                    break;
+            }
+        }
+    }
+    // Function to create a matrix based on user input
+    public static int[][] createMatrix() {
+        System.out.print(" Number of Rows (maximum 10): ");
+        int rows = 0;
+        boolean validInput = false;
+        while (!validInput) {
+            try {
+                rows = Integer.parseInt(scan.nextLine());
+                if (rows >= 1 && rows <= 10) {
+                    validInput = true;
+                } else {
+                    System.out.println(" Invalid input. Please enter a number between 1 and 10.");
+                    System.out.print(" Number of Rows (maximum 10): ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(" Invalid input. Please enter a number.");
+                System.out.print(" Number of Rows (maximum 10): ");
+            }
+        }
+
+        System.out.print(" Number of Columns (maximum 10): ");
+        int cols = 0;
+        validInput = false;
+        while (!validInput) {
+            try {
+                cols = Integer.parseInt(scan.nextLine());
+                if (cols >= 1 && cols <= 10) {
+                    validInput = true;
+                } else {
+                    System.out.println(" Invalid input. Please enter a number between 1 and 10.");
+                    System.out.print(" Number of Columns (maximum 10): ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(" Invalid input. Please enter a number.");
+                System.out.print(" Number of Columns (maximum 10): ");
+            }
+        }
+
+        int[][] matrix = new int[rows][cols];
+        System.out.println("\n Elements of Matrix:");
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                System.out.print(" Element " + (i + 1) + (j + 1) + ": ");
+                validInput = false;
+                while (!validInput) {
+                    try {
+                        matrix[i][j] = Integer.parseInt(scan.nextLine());
+                        validInput = true;
+                    } catch (NumberFormatException e) {
+                        System.out.print(" Invalid input.\n Re-enter the element: ");
+                    }
+                }
+            }
+        }
+        return matrix;
+    }
+
+    public static void addMatrices(int[][][] matrices) {
+        // Check if there are at least two matrices for addition
+        if (matrices.length < 2) {
+            System.out.println(" Insufficient number of matrices to perform addition.");
+            return;
+        }
+   
+        // Get the dimensions of the matrices
+        int rows = matrices[0].length;
+        int cols = matrices[0][0].length;
+        int[][] result = new int[rows][cols];
+   
+        // Initialize the result matrix with zeros
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                result[r][c] = 0;
+            }
+        }
+   
+        // Flag to track if at least one compatible matrix is found
+        boolean atLeastOneCompatible = false;
+   
+        for (int[][] matrix : matrices) {
+            if (matrix.length != rows || matrix[0].length != cols) {
+                // If the matrix is incompatible, skip and set the result as the first compatible matrix
+                if (!atLeastOneCompatible) {
+                    System.out.println(" Unable to add matrix due to incompatible dimensions.");
+                    System.out.println("\n Result of Matrix Addition:");
+                    printMatrix(result);
+                    break;
+                }
+            } else {
+                // Add compatible matrices to the result
+                atLeastOneCompatible = true;
+                for (int r = 0; r < rows; r++) {
+                    for (int c = 0; c < cols; c++) {
+                        result[r][c] += matrix[r][c];
+                    }
+                }
+            }
+        }
+   
+        if (atLeastOneCompatible) {
+            // If at least one compatible matrix is found, proceed with addition
+            System.out.println("\n Displaying matrices to be added:");
+            for (int q = 0; q < matrices.length; q++) {
+                if (matrices[q].length == rows && matrices[q][0].length == cols) {
+                    System.out.println(" Matrix " + (q + 1) + ":");
+                    printMatrix(matrices[q]);
+                    if (q < matrices.length - 1 && matrices[q + 1].length == rows && matrices[q + 1][0].length == cols) {
+                        System.out.println(" +");
+                    }
+                }
+            }
+            System.out.println("\n Result of Matrix Addition:");
+            printMatrix(result);
+   
+            // Option to add another matrix
+            boolean addAnotherMatrix = true;
+            while (addAnotherMatrix) {
+                System.out.println("\n Do you want to add another matrix?");
+                System.out.println(" (1) Yes \n (2) No");
+                System.out.print(" Enter Input: ");
+                int continueChoice = 0;
+                try {
+                    continueChoice = Integer.parseInt(scan.nextLine());
+                    if (continueChoice == 1) {
+                        // Prompt user for additional matrix and perform addition
+                        int[][] anotherMatrix = additionalMatrix(" Additional Matrix: ", matrices);
+                        if (anotherMatrix == null) {
+                            continue;
+                        }
+                        if (anotherMatrix.length != result.length || anotherMatrix[0].length != result[0].length) {
+                            System.out.println("\n Unable to perform addition operation because the dimensions are incompatible.");
+                            continue;
+                        }
+                        // Display matrices and update result
+                        System.out.println("\n Displaying matrices to be added:");
+                        System.out.println(" Previous Result: ");
+                        printMatrix(result);
+                        for (int r = 0; r < result.length; r++) {
+                            for (int c = 0; c < result.length; c++) {
+                                result[r][c] += anotherMatrix[r][c];
+                            }
+                        }
+                        System.out.println("\n Additional Matrix: ");
+                        printMatrix(anotherMatrix);
+                        System.out.println("\n Updated Matrix Result: ");
+                        printMatrix(result);
+                    } else if (continueChoice == 2) {
+                        addAnotherMatrix = false;
+                    } else {
+                        System.out.println(" Invalid input. Please enter 1 or 2.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println(" Invalid input. Please enter a number.");
+                }
+            }
+        }
+    }
+
+    public static void multiplyMatrices(int[][][] matrices) {
+        if (matrices.length < 2) {
+            System.out.println(" Insufficient number of matrices to perform multiplication.");
+            return;
+        }
+        // Display matrices before multiplication
+        System.out.println(" Matrices before multiplication:");
+        for (int i = 0; i < matrices.length; i++) {
+            System.out.println(" Matrix " + (i + 1) + ":");
+            printMatrix(matrices[i]);
+            System.out.println();
+        }
+        // Check if matrices are compatible for multiplication
+        for (int i = 1; i < matrices.length; i++) {
+            if (matrices[i - 1][0].length != matrices[i].length) {
+                System.out.println(" Unable to perform multiplication operation because the dimensions are incompatible.");
+                return;
+            }
+        }
+        int[][] result = matrices[0]; // Initialize result matrix with the first matrix
+        // Iterate through the matrices for multiplication
+        for (int i = 1; i < matrices.length; i++) {
+            System.out.println();
+            System.out.println(" Multiplying the matrices " + i + " and " + (i + 1) + ":");
+            printMatrix(result);
+            System.out.println(" *");
+            printMatrix(matrices[i]);
+            result = multiply(result, matrices[i]);
+            System.out.println();
+        }
+        // Print the final result of matrix multiplication
+        System.out.println();
+        System.out.println(" Result of Matrix Multiplication: ");
+        printMatrix(result);
+   
+        // Ask if the user wants to multiply by another matrix
+        boolean multiplyAnotherMatrix = true;
+        while (multiplyAnotherMatrix) {
+            System.out.println("\n Do you want to multiply another matrix?");
+            System.out.println(" (1) Yes \n (2) No");
+            System.out.print(" Enter Input: ");
+            int continueChoice = 0;
+            try {
+                continueChoice = Integer.parseInt(scan.nextLine());
+                if (continueChoice == 1) {
+                    int[][] anotherMatrix = additionalMatrix(" Additional Matrix: ", matrices);
+                    if (anotherMatrix == null) {
+                        continue;
+                    }
+                    if (result[0].length != anotherMatrix.length) {
+                        System.out.println("\n Unable to perform multiplication operation because the dimensions are incompatible.");
+                        continue;
+                    }
+                    System.out.println("\n Previous Result: ");
+                    printMatrix(result);
+                    System.out.println(" *");
+                    System.out.println(" Additional Matrix: ");
+                    printMatrix(anotherMatrix);
+   
+                    result = multiply(result, anotherMatrix);
+                    System.out.println("\n Updated Result: ");
+                    printMatrix(result);
+                } else if (continueChoice == 2) {
+                    multiplyAnotherMatrix = false;
+                } else {
+                    System.out.println(" Invalid input. Please enter 1 or 2.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(" Invalid input. Please enter a number.");
+            }
+        }
+    }
+    // Helper method to perform matrix multiplication
+    private static int[][] multiply(int[][] a, int[][] b) {
+        int rowsA = a.length;
+        int colsA = a[0].length;
+        int rowsB = b.length;
+        int colsB = b[0].length;
+        //check if matrices A ans B are compatible for multiplication
+        if (colsA != rowsB) {
+            System.out.println();
+            System.out.println(" Cannot multiply matrices: Incompatible dimensions.");
+            return null;
+        }
+        // initialize the result matrix with appropriate dimensions
+        int[][] result = new int[rowsA][colsB];
+        //perform matrix multiplication
+        for (int i = 0; i < rowsA; i++) {
+            for (int j = 0; j < colsB; j++) {
+                for (int k = 0; k < colsA; k++) {
+                    result[i][j] += a[i][k] * b[k][j];
+                }
+            }
+        }
+
+        return result;
+    }
+   
+    public static void multiplyMatricesByConstant(int[][][] matrices, Scanner scan) {
+        boolean multiplyAnotherConstant = true;
+        int[][][] previousResult = null;
+       
+        while (multiplyAnotherConstant) {
+            int[][] selectedMatrix;
+           
+            if (previousResult != null) {
+                // If there's a previous result, use it for further operations
+                System.out.println("\n Previous Matrix:");
+                printMatrix(previousResult[0]); // Assuming only one matrix in previousResult
+                selectedMatrix = previousResult[0];
+            } else {
+                // Otherwise, prompt the user to choose a matrix
+                System.out.println("\n Displaying matrices to choose from:");
+                for (int i = 0; i < matrices.length; i++) {
+                    System.out.println(" (" + (i + 1) + ") Matrix " + (i + 1) + ":");
+                    printMatrix(matrices[i]);
+                }
+                System.out.print("\n Choose a matrix to multiply by constant: ");
+   
+                int choice = 0;
+                try {
+                    choice = Integer.parseInt(scan.nextLine());
+                    // Validate the user's choice
+                    if (choice < 1 || choice > matrices.length) {
+                        System.out.println(" Invalid choice. Please select a valid matrix.");
+                        continue;
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println(" Invalid input. Please enter a number.");
+                    continue;
+                }
+               
+                selectedMatrix = matrices[choice - 1];
+            }
+           
+            // Prompt the user to enter the constant
+            System.out.print(" Enter the constant to multiply: ");
+            int constant = 0;
+            try {
+                constant = Integer.parseInt(scan.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println(" Invalid input. Please enter a number.");
+                continue;
+            }
+   
+            // Multiply the selected matrix by the constant
+            int[][] product = new int[selectedMatrix.length][selectedMatrix[0].length];
+            for (int i = 0; i < selectedMatrix.length; i++) {
+                for (int j = 0; j < selectedMatrix[0].length; j++) {
+                    product[i][j] = selectedMatrix[i][j] * constant;
+                }
+            }
+   
+            // Display the result
+            System.out.println("\n Result of Multiplying Matrix by Constant " + constant + ":");
+            printMatrix(product);
+           
+            // Store the result for the next iteration
+            previousResult = new int[][][] { product };
+   
+            // Ask if the user wants to multiply by another constant
+            System.out.println("\n Do you want to multiply by another constant?");
+            System.out.print("  1. Press any key if yes \n  2. Press 2 if no \n  Enter your choice: ");
+            int choice = 0;
+            try {
+                choice = Integer.parseInt(scan.nextLine());
+                if (choice == 1) {
+       
+                } else if (choice == 2) {
+                    multiplyAnotherConstant = false;
+                } else {
+                    //System.out.println("Invalid choice. Please enter either 1 or 2.");
+                }
+            } catch (NumberFormatException e) {
+                //System.out.println("Invalid input. Please enter a number.");
+            }
+
+        }
+    }
+    // Prints the matrix ontained by multiplying the matrix by the constant
+    public static void printMatrixWithConstant(int[][] matrix, int constant) {
+        // Iterate through each row of the matrix
+        for (int[] row : matrix) {
+            System.out.print (" | "); // Print the left border of the matrix
+            for (int element : row) {
+                // Print the product of the element and the constant
+                System.out.print((element * constant) + " ");
+            }
+            System.out.print ("| "); // Print the right border of the matrix
+            System.out.println();
+        }
+    }
+    // This method diagonalizes a square matrix by allowing the user to specify the diagonal elements to change.
+    public static int[][] diagonalizeMatrix(int[][][] matrices, Scanner scan) {
+        int numMatrices = matrices.length;
+        if (numMatrices == 0) {
+            System.out.println(" No matrices provided.");
+            return null;
+        }
+        // Finding square matrices for diagonalization
+        List<Integer> squareMatrixIndices = new ArrayList<>();
+        for (int i = 0; i < numMatrices; i++) {
+            if (isSquareMatrix(matrices[i])) {
+                squareMatrixIndices.add(i);
+            }
+        }
+   
+        int numSquareMatrices = squareMatrixIndices.size();
+        if (numSquareMatrices == 0) {
+            System.out.println(" No square matrices available for diagonalization.");
+            return null;
+        }
+        // Displaying available square matrices for diagonalization
+        System.out.println("\n Square matrices:");
+        for (int i = 0; i < matrices.length; i++) {
+            if (isSquareMatrix(matrices[i])) {
+                System.out.println(" Matrix " + (i + 1) + ":");
+                printMatrix(matrices[i]);
+            }
+        }
+        System.out.println();
+        System.out.println(" Available square matrices for diagonalization:");
+        for (int i = 0; i < numSquareMatrices; i++) {
+            int matrixIndex = squareMatrixIndices.get(i);
+            System.out.println(" (" + (i + 1) + ") Matrix " + (matrixIndex + 1));
+        }
+   
+        System.out.println();
+        System.out.print(" Select a matrix to diagonalize: ");
+        int selectedMatrixIndex = 0;
+        boolean validInput = false;
+        while (!validInput) {
+            try {
+                selectedMatrixIndex = Integer.parseInt(scan.nextLine()) - 1;
+                if (selectedMatrixIndex >= 0 && selectedMatrixIndex < numSquareMatrices) {
+                    validInput = true;
+                } else {
+                    System.out.println(" Invalid selection. Please refer to the available matrix.");
+                    System.out.print(" Select a matrix to diagonalize: ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(" Invalid input. Please enter a number.");
+                System.out.print(" Select a matrix to diagonalize: ");
+            }
+        }
+        // Selecting the matrix to diagonalize
+        int[][] selectedMatrix = matrices[squareMatrixIndices.get(selectedMatrixIndex)];
+        int rows = selectedMatrix.length;
+        int cols = selectedMatrix[0].length;
+   
+        // Copy the original matrix for display
+        int[][] matrix = new int[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                matrix[i][j] = selectedMatrix[i][j];
+            }
+        }
+
+        // Diagonalizing the matrix
+        while (true) {
+            try {
+                System.out.println();
+                int numDiagonalElements = 0;
+                while (true) {
+                    System.out.print(" Number of diagonal elements to change (1 - " + rows + "): ");
+                    try {
+                        numDiagonalElements = Integer.parseInt(scan.nextLine());
+   
+                        if (numDiagonalElements > rows) {
+                            throw new IllegalArgumentException(" `Invalid input. You cannot exceed " + rows + ".");
+                        } else {
+                            break;
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println(" Invalid input. Please enter a valid integer for the number of diagonal elements.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+                // Changing the diagonal elements
+                for (int i = 0; i < numDiagonalElements; i++) {
+                    while (true) {
+                        System.out.print(" Enter the diagonal element index to change (1 - " + rows + "): ");
+                        try {
+                            int diagonalIndex = Integer.parseInt(scan.nextLine());
+   
+                            if (diagonalIndex < 1 || diagonalIndex > rows) {
+                                throw new IllegalArgumentException(" Invalid input. You cannot exceed " + rows + ".");
+                            } else {
+                                System.out.print(" Enter the new value for the diagonal element: ");
+                                int newValue = Integer.parseInt(scan.nextLine());
+   
+                                // Set the diagonal element to the new value
+                                matrix[diagonalIndex - 1][diagonalIndex - 1] = newValue;
+                                break;
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println(" Invalid input. Please enter a valid integer for the diagonal element index.");
+                        } catch (IllegalArgumentException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                }
+                // Displaying the original and diagonalized matrices
+                System.out.println("\n Original Matrix:");
+                printMatrix(selectedMatrix);
+                System.out.println("\n Diagonalized Matrix:");
+                printMatrix(matrix);
+                 // Asking the user if they want to diagonalize the matrix again
+                System.out.println("\n Do you want to diagonalize the diagonalized matrix?");
+                System.out.println(" (1) Yes");
+                System.out.println(" (2) No");
+                System.out.print(" Enter your choice: ");
+                int choice = Integer.parseInt(scan.nextLine());
+   
+                if (choice != 1) {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(" Invalid input. Please enter a valid number.");
+            }
+        }
+        return matrix;
+    }
+    // Checks if the given matrix is square.
+    private static boolean isSquareMatrix(int[][] matrix) {
+        int rows = matrix.length;
+        if (rows == 0)
+        return false;
+        int cols = matrix[0].length;
+        return rows == cols;
+    }
+    // Asks the user if they want to continue with another operation using the same set of matrices, enter a new set of matrices, or close the program.
+    public static boolean continueOrExit() {
+        System.out.println("\n Do you want to perform another operation using the same set of matrices?");
+        System.out.println(" (1) Yes");
+        System.out.println(" (2) Enter new set of matrices");
+        System.out.println(" (3) Close program");
+        System.out.print(" Enter your choice: ");
+        int continueChoice = 0;
+        boolean validInput = false;
+        while (!validInput) {
+            try {
+                continueChoice = Integer.parseInt(scan.nextLine());
+                if (continueChoice == 1 || continueChoice == 2) {
+                    validInput = true;
+                } else if (continueChoice == 3) {
+                    System.out.println("\n Alright, bye!");
+                    System.exit(0);
+                } else {
+                    System.out.println(" Invalid input. Please enter 1, 2, or 3.");
+                    System.out.print(" Enter your choice: ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(" Invalid input. Please enter a number.");
+                System.out.print(" Enter your choice: ");
+            }
+        }
+
+        if (continueChoice == 1) {
+            return true;
+        } else if (continueChoice == 2) {
+            System.out.println();
+            System.out.println(" Got it! Entering new set of matrices is allowed.");
+            return false;
+        } else {
+            System.out.println(" Invalid input. Exiting...");
+            System.exit(1);
+            return false; // This line will never be reached, but added for completeness.
+        }
+    }
+    // Prints the given matrix.
+    public static void printMatrix(int[][] matrix) { //print the given matrix
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            System.out.println(" Matrix is empty.");
+            return;
+        }
+
+        for (int[] row : matrix) { //print each element of the matrix
+            System.out.print("  | ");
+            for (int element : row) {
+                System.out.print(" " + element + " ");
+            }
+            System.out.println("|");
+        }
+    }
+    // Prompts the user to enter a new matrix with specified dimensions and returns the matrix.
+    public static int[][] additionalMatrix(String newMat, int[][][] matrices) {
+        System.out.print("\n Number of Rows (maximum 10): ");
+        int rows = 0;
+        boolean validInput = false;
+        while (!validInput) { // validate user input for number of rows
+            try {
+                rows = Integer.parseInt(scan.nextLine());
+                if (rows >= 1 && rows <= 10) {
+                    validInput = true;
+                } else {
+                    System.out.println(" Number of rows must be between 1 and 10.");
+                    System.out.print(" Number of Rows (maximum 10):  ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(" Invalid input. Please enter a number.");
+                System.out.print(" Number of Rows (maximum 10):  ");
+            }
+        }
+   
+        System.out.print(" Number of Columns (maximum 10): ");
+        int cols = 0;
+        validInput = false;
+        while (!validInput) { // validate user input for number of columns
+            try {
+                cols = Integer.parseInt(scan.nextLine());
+                if (cols >= 1 && cols <= 10) {
+                    validInput = true;
+                } else {
+                    System.out.println(" Number of columns must be between 1 and 10.");
+                    System.out.print(" Number of Columns (maximum 10): ");
+                }
+               
+            } catch (NumberFormatException e) {
+                System.out.println(" Invalid input. Please enter a number.");
+                System.out.print(" Number of Columns (maximum 10): ");
+            }
+        }
+       
+        for (int[][] matrix : matrices) {
+            if (matrix[0].length != rows) {
+                System.out.println("\n Unable to add elements because the dimensions are incompatible.");
+                return null;
+            }
+        }
+        // Initialize a new matrix with the specified dimensions
+        int[][] matrix = new int[rows][cols];
+        System.out.println("\n Elements of " + newMat);
+        // Prompt user to enter each element of the matrix
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                System.out.print("  Element " + (i + 1) + (j + 1) + ": ");
+                validInput = false;
+                while (!validInput) {
+                    try {
+                        matrix[i][j] = Integer.parseInt(scan.nextLine());
+                        validInput = true;
+                    } catch (NumberFormatException e) {
+                        System.out.print("  Invalid input. \n  Re-enter the element: ");
+                    }
+                }
+            }
+        }
+        return matrix;
+    }  
+}
