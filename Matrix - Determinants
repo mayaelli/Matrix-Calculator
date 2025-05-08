@@ -1,5 +1,5 @@
 import java.util.Scanner;
-public class AliLabAct03 {
+public class LabAct03 {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
