@@ -1,5 +1,5 @@
 import java.util.*;
-public class Ali_MatrixOperations {
+public class MatrixOperations {
     private static Scanner scan = new Scanner (System.in);
 
     public static void main(String[] args) {
